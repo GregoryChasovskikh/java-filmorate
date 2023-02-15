@@ -14,6 +14,17 @@ public class User {
         this.birthday = birthday;
     }
 
+    public User(int id, @NonNull String email, @NonNull String login, String name, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        this.birthday = birthday;
+    }
+
+    public User() {
+    }
+
     private int id;
     @NonNull private String email;
     @NonNull private String login;

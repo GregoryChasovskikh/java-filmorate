@@ -34,17 +34,16 @@ public class FilmController {
 
     @PutMapping (value = "/films") //обновление фильма;
     public Film updateFilm(@RequestBody Film film) {
-        validateFilm(film);
-        Integer currentFilmId = checkIfContainsName(film.getName());
-        if (currentFilmId > 0) {
-            films.remove(currentFilmId);
-            film.setId(currentFilmId);
-            films.put(currentFilmId, film);
+        if (films.containsKey(film.getId())) {
+            validateFilm(film);
+            //Integer currentFilmId = checkIfContainsName(film.getName());
+            films.remove(film.getId());
+            films.put(film.getId(), film);
             System.out.println("Фильм обновлен");
+            return film;
         } else {
-            throw new ValidationException("Фильма нет в базе. Попробуйте его добавить");
+            throw new ValidationException("There is no such film!");
         }
-        return film;
     }
 
     @GetMapping("/films") //получение всех фильмов.
@@ -54,7 +53,7 @@ public class FilmController {
     }
 
     private void validateFilm (Film film) {
-        if (film.getName().equals("") || film.getDescription().length() > 200 || film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28)) || film.getDuration().isNegative() || film.getDuration().isZero()) {
+        if (film.getName().equals("") || film.getDescription().length() > 200 || film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28)) || film.getDuration() <= 0) {
             throw new ValidationException("Invalid data: maximum description length is 200 characters; release date - no earlier than December 28, 1895; movie duration must be positive");
         }
     }

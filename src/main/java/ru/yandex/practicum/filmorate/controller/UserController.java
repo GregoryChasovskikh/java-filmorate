@@ -33,17 +33,17 @@ public class UserController {
 
     @PutMapping(value = "/users") //Обновление пользователя
     public User updateUser(@RequestBody User user) {
-        Integer currentUserId = checkIfContainsLogin(user.getLogin());
-        if (currentUserId > 0) {
+        //Integer currentUserId = checkIfContainsLogin(user.getLogin());
+        if (users.containsKey(user.getId())) {
             validateUser(user);
-            users.remove(currentUserId);
-            user.setId(currentUserId);
-            users.put(currentUserId, user);
+            users.remove(user.getId());
+            users.put(user.getId(), user);
             System.out.println("Пользователь успешно обновлен!");
+            return user;
         } else {
-            throw new ValidationException("This user is not in the database!");
-        }
-        return user;
+            throw new ValidationException("There is no such user!");
+    }
+
     }
 
     @GetMapping("/users") //Получение списка пользователей
