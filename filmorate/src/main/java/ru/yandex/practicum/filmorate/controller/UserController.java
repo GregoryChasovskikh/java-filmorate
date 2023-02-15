@@ -6,7 +6,9 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -16,7 +18,7 @@ public class UserController {
     private int userId;
 
     @PostMapping(value = "/users") //Создание пользователя
-    public void addUser(@RequestBody User user) {
+    public User addUser(@RequestBody User user) {
         if (checkIfContainsLogin(user.getLogin()) == 0) {
             validateUser(user);
             ++userId;
@@ -26,11 +28,11 @@ public class UserController {
         } else {
             throw new ValidationException("This user is already in the database!");
         }
-
+        return user;
     }
 
-    @PutMapping(value = "/users/update") //Обновление пользователя
-    public void updateUser(@RequestBody User user) {
+    @PutMapping(value = "/users") //Обновление пользователя
+    public User updateUser(@RequestBody User user) {
         Integer currentUserId = checkIfContainsLogin(user.getLogin());
         if (currentUserId > 0) {
             validateUser(user);
@@ -41,13 +43,13 @@ public class UserController {
         } else {
             throw new ValidationException("This user is not in the database!");
         }
-
-
+        return user;
     }
 
     @GetMapping("/users") //Получение списка пользователей
-    public HashMap<Integer, User> getUsersList() {
-        return users;
+    public List<User> getUsersList() {
+        List<User> list = new ArrayList<User>(users.values());
+        return list;
     }
 
     private void validateUser (User user) {
