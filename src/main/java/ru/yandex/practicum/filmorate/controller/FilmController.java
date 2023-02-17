@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
@@ -15,12 +16,12 @@ import java.util.List;
 @Slf4j
 public class FilmController {
 
-    HashMap<Integer, Film> films = new HashMap<>();
+    private HashMap<Integer, Film> films = new HashMap<>();
     private int filmId;
 
     @PostMapping(value = "/films")  //добавление фильма;
-    public Film addFilm(@RequestBody Film film) {
-        if (checkIfContainsName(film.getName()) == 0) {
+    public Film addFilm(@Valid @RequestBody Film film) {
+        if (!films.containsKey(film.getId())) {
             validateFilm(film);
             ++filmId;
             film.setId(filmId);
@@ -33,11 +34,9 @@ public class FilmController {
     }
 
     @PutMapping (value = "/films") //обновление фильма;
-    public Film updateFilm(@RequestBody Film film) {
+    public Film updateFilm(@Valid @RequestBody Film film) {
         if (films.containsKey(film.getId())) {
             validateFilm(film);
-            //Integer currentFilmId = checkIfContainsName(film.getName());
-            films.remove(film.getId());
             films.put(film.getId(), film);
             System.out.println("Фильм обновлен");
             return film;
@@ -53,18 +52,9 @@ public class FilmController {
     }
 
     private void validateFilm (Film film) {
-        if (film.getName().equals("") || film.getDescription().length() > 200 || film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28)) || film.getDuration() <= 0) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28)) || film.getDuration() <= 0) {
             throw new ValidationException("Invalid data: maximum description length is 200 characters; release date - no earlier than December 28, 1895; movie duration must be positive");
         }
-    }
-
-    private Integer checkIfContainsName (String name) {
-        for (Film film : films.values()) {
-            if (film.getName().equals(name)) {
-                return film.getId();
-            }
-        }
-        return 0;
     }
 
 }

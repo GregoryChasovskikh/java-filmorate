@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,12 +15,12 @@ import java.util.List;
 @Slf4j
 public class UserController {
 
-    HashMap<Integer, User> users = new HashMap<>();
+    private HashMap<Integer, User> users = new HashMap<>();
     private int userId;
 
     @PostMapping(value = "/users") //Создание пользователя
-    public User addUser(@RequestBody User user) {
-        if (checkIfContainsLogin(user.getLogin()) == 0) {
+    public User addUser(@Valid @RequestBody User user) {
+        if (!users.containsKey(user.getId())) {
             validateUser(user);
             ++userId;
             user.setId(userId);
@@ -32,11 +33,9 @@ public class UserController {
     }
 
     @PutMapping(value = "/users") //Обновление пользователя
-    public User updateUser(@RequestBody User user) {
-        //Integer currentUserId = checkIfContainsLogin(user.getLogin());
+    public User updateUser(@Valid @RequestBody User user) {
         if (users.containsKey(user.getId())) {
             validateUser(user);
-            users.remove(user.getId());
             users.put(user.getId(), user);
             System.out.println("Пользователь успешно обновлен!");
             return user;
@@ -59,16 +58,6 @@ public class UserController {
             user.setName(user.getLogin());
         }
     }
-
-    private Integer checkIfContainsLogin (String login) {
-        for (User user : users.values()) {
-            if (user.getLogin().equals(login)) {
-                return user.getId();
-            }
-        }
-        return 0;
-    }
-
     public HashMap<Integer, User> getUsers() {
         return users;
     }

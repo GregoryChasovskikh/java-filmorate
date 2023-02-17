@@ -2,23 +2,15 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
 import lombok.NonNull;
-
-import java.time.Duration;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 
 @Data
 public class Film {
-    public Film(@NonNull int id, @NonNull String name, String description, LocalDate releaseDate, int duration, int rate) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.rate = rate;
-    }
-
-    public Film(@NonNull String name, String description, LocalDate releaseDate, int duration) {
+    public Film(@NotBlank @NonNull String name, String description, LocalDate releaseDate, int duration) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
@@ -28,9 +20,12 @@ public class Film {
     public Film() {
     }
 
+    @NotNull
     @NonNull private int id;
-    @NonNull private String name;
-    private String description;
+    @NotNull
+    @NonNull
+    @NotBlank private String name;
+    @Size(max=200) private String description;
     private LocalDate releaseDate;
     private int duration;
     private int rate;

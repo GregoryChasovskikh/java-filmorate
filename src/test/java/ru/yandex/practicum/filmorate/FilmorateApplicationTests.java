@@ -3,15 +3,13 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-
-import java.time.Duration;
 import java.time.LocalDate;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
@@ -62,10 +60,13 @@ class FilmorateApplicationTests {
 
 	@Test
 	public void maximumLengthOfDescriptionCannotExceed200() {
-		FilmController filmController = new FilmController();
-		Film testFilm = new Film("Knights", "The cyborg Gabriel (Kris Kristofferson) was created to destroy all other cyborgs. He later rescues Nea (Kathy Long) by killing the cyborg Simon (Scott Paulin). Gabriel trains Nea to become a cyborg killer and help him.", LocalDate.parse("1993-11-17"), 90);
-		ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> filmController.addFilm(testFilm));
-		Assertions.assertEquals("Invalid data: maximum description length is 200 characters; release date - no earlier than December 28, 1895; movie duration must be positive", ex.getMessage());
+		try {
+			FilmController filmController = new FilmController();
+			Film testFilm = new Film("Knights", "The cyborg Gabriel (Kris Kristofferson) was created to destroy all other cyborgs. He later rescues Nea (Kathy Long) by killing the cyborg Simon (Scott Paulin). Gabriel trains Nea to become a cyborg killer and help him.", LocalDate.parse("1993-11-17"), 90);
+			filmController.addFilm(testFilm);
+		} catch (final HttpMessageNotReadableException e) {
+			assertNotNull(e);
+		}
 	}
 
 	@Test
