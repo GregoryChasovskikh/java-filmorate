@@ -5,6 +5,8 @@ import lombok.NonNull;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
@@ -27,4 +29,5 @@ public class User {
     @NonNull private String login;
     private String name;
     private LocalDate birthday;
+    public Set<Integer> friends = new HashSet<>();
 }

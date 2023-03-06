@@ -1,59 +1,63 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
 @Slf4j
 public class FilmController {
+    private final InMemoryFilmStorage inMemoryFilmStorage;
+    private final FilmService filmService;
+    @Autowired
+    public FilmController(InMemoryFilmStorage inMemoryFilmStorage, FilmService filmService) {
+        this.inMemoryFilmStorage = inMemoryFilmStorage;
+        this.filmService = filmService;
+    }
 
-    private HashMap<Integer, Film> films = new HashMap<>();
-    private int filmId;
 
     @PostMapping(value = "/films")  //добавление фильма;
     public Film addFilm(@Valid @RequestBody Film film) {
-        if (!films.containsKey(film.getId())) {
-            validateFilm(film);
-            ++filmId;
-            film.setId(filmId);
-            films.put(filmId, film);
-            System.out.println("Фильм добавлен");
-        } else {
-            throw new ValidationException("Такой фильм уже есть в базе!");
-        }
-        return film;
+        return inMemoryFilmStorage.addFilm(film);
     }
 
     @PutMapping (value = "/films") //обновление фильма;
     public Film updateFilm(@Valid @RequestBody Film film) {
-        if (films.containsKey(film.getId())) {
-            validateFilm(film);
-            films.put(film.getId(), film);
-            System.out.println("Фильм обновлен");
-            return film;
-        } else {
-            throw new ValidationException("There is no such film!");
-        }
+        return inMemoryFilmStorage.updateFilm(film);
     }
 
     @GetMapping("/films") //получение всех фильмов.
     public List<Film> getFilmsList() {
-        List<Film> list = new ArrayList<Film>(films.values());
-        return list;
+        return inMemoryFilmStorage.getFilmsList();
     }
 
-    private void validateFilm (Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28)) || film.getDuration() <= 0) {
-            throw new ValidationException("Invalid data: maximum description length is 200 characters; release date - no earlier than December 28, 1895; movie duration must be positive");
+    @GetMapping("/films/{filmId}")
+    public Film findFilmById(@PathVariable int filmId) {
+        return inMemoryFilmStorage.getFilmById(filmId);
+    }
+
+    @PutMapping (value = "/films/{id}/like/{userId}") //Пользователь ставит лайк фильму
+    public void like(@PathVariable int id, @PathVariable int userId) {
+        filmService.like(id, userId);
+    }
+
+    @DeleteMapping (value = "/films/{id}/like/{userId}") //пользователь удаляет лайк
+    public void unlike(@PathVariable int id, @PathVariable int userId) {
+        filmService.unlike(id, userId);
+    }
+
+    @GetMapping (value = "/films/popular")
+    public List<Film> getMoviesByLikes(@RequestParam(required = false) Integer count) {
+        if (count == null) {
+            return filmService.getMoviesByLikes(10);
+        } else {
+            return filmService.getMoviesByLikes(count);
         }
     }
 
