@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -38,7 +37,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             System.out.println("Фильм обновлен");
             return film;
         } else {
-            throw new ValidationException("There is no such film!");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "There is no such film!");
         }
     }
 
