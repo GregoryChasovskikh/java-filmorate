@@ -1,14 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -21,12 +20,16 @@ public class UserService {
 
     //Добавление в друзья
     public void addFriend(int idUserOne, int idUserTwo) {
+        checkIfFriendExists(idUserOne);
+        checkIfFriendExists(idUserTwo);
         inMemoryUserStorage.getUserById(idUserOne).getFriends().add(idUserTwo);
         inMemoryUserStorage.getUserById(idUserTwo).getFriends().add(idUserOne);
     }
 
     //Удаление из друзей
     public void deleteFriend(int idUserOne, int idUserTwo) {
+        checkIfFriendExists(idUserOne);
+        checkIfFriendExists(idUserTwo);
         inMemoryUserStorage.getUserById(idUserOne).getFriends().remove(idUserTwo);
         inMemoryUserStorage.getUserById(idUserTwo).getFriends().remove(idUserOne);
     }
@@ -53,6 +56,13 @@ public class UserService {
             friends.add(inMemoryUserStorage.getUserById(friend));
         }
         return friends;
+    }
+
+    private void checkIfFriendExists(int id) {
+        for (User currentUser : inMemoryUserStorage.getUsersList()) {
+            if (id == currentUser.getId()) return;
+        }
+        throw new NotFoundException(HttpStatus.NOT_FOUND, "There is no such user!");
     }
 
     private <T> Set<T> mergeSet(Set<T> a, Set<T> b)
