@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -61,7 +62,7 @@ public class InMemoryUserStorage implements UserStorage {
         for (User currentUser : users.values()) {
             if (id == currentUser.getId()) return currentUser;
         }
-        throw new NotFoundException(HttpStatus.NOT_FOUND, "There is no such user!");
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such user!");
     }
 
 }

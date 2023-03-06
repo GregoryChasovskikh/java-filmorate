@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -57,6 +59,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         for (Film currentFilm : films.values()) {
             if (id == currentFilm.getId()) return currentFilm;
         }
-        throw new ValidationException("There is no such movie!");
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such movie!");
     }
 }

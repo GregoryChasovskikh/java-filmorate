@@ -77,7 +77,8 @@ class FilmorateApplicationTests {
 	@Test
 	public void releaseDate() {
 		InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-		FilmService filmService = new FilmService(inMemoryFilmStorage);
+		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+		FilmService filmService = new FilmService(inMemoryFilmStorage, inMemoryUserStorage);
 		FilmController filmController = new FilmController(inMemoryFilmStorage, filmService);
 		Film testFilm = new Film("Knights", "Knights is a 1993 American martial arts science fiction action film directed by Albert Pyun", LocalDate.parse("1893-11-17"), 90);
 		ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> filmController.addFilm(testFilm));
@@ -87,7 +88,8 @@ class FilmorateApplicationTests {
 	@Test
 	public void durationMustBePositive() {
 		InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-		FilmService filmService = new FilmService(inMemoryFilmStorage);
+		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+		FilmService filmService = new FilmService(inMemoryFilmStorage, inMemoryUserStorage);
 		FilmController filmController = new FilmController(inMemoryFilmStorage, filmService);
 		Film testFilm = new Film("Knights", "Knights is a 1993 American martial arts science fiction action film directed by Albert Pyun", LocalDate.parse("1993-11-17"), -1);
 		ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> filmController.addFilm(testFilm));
@@ -100,7 +102,8 @@ class FilmorateApplicationTests {
 	public void nameOfFilmMustNotBeNull() {
 		try {
 			InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-			FilmService filmService = new FilmService(inMemoryFilmStorage);
+			InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
+			FilmService filmService = new FilmService(inMemoryFilmStorage, inMemoryUserStorage);
 			FilmController filmController = new FilmController(inMemoryFilmStorage, filmService);
 			Film testFilm = new Film(null, "Knights is a 1993 American martial arts science fiction action film directed by Albert Pyun", LocalDate.parse("1993-11-17"), 90);
 			filmController.addFilm(testFilm);

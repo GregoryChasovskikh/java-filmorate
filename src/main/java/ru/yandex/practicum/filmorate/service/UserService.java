@@ -3,7 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.ErrorResponse;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
@@ -62,7 +66,7 @@ public class UserService {
         for (User currentUser : inMemoryUserStorage.getUsersList()) {
             if (id == currentUser.getId()) return;
         }
-        throw new NotFoundException(HttpStatus.NOT_FOUND, "There is no such user!");
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such user!");
     }
 
     private <T> Set<T> mergeSet(Set<T> a, Set<T> b)
@@ -74,4 +78,5 @@ public class UserService {
             }
         };
     }
+
 }
