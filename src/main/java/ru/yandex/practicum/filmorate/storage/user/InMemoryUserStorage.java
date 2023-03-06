@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
@@ -47,7 +49,7 @@ public class InMemoryUserStorage implements UserStorage {
     private void validateUser (User user) {
         if (!user.getEmail().contains("@") || user.getLogin().contains(" ") || user.getBirthday().isAfter(LocalDate.now())) {
             throw new ValidationException("Invalid data: email must contain the @ symbol, login cannot contain spaces, date of birth cannot be in the future");
-        } else if (user.getName() == null) {
+        } else if (user.getName() == null || user.getName().equals("")) {
             user.setName(user.getLogin());
         }
     }
@@ -59,7 +61,7 @@ public class InMemoryUserStorage implements UserStorage {
         for (User currentUser : users.values()) {
             if (id == currentUser.getId()) return currentUser;
         }
-        throw new ValidationException("There is no such user!");
+        throw new NotFoundException(HttpStatus.NOT_FOUND, "There is no such user!");
     }
 
 }

@@ -37,6 +37,11 @@ public class UserController {
         return inMemoryUserStorage.getUsersList();
     }
 
+    @GetMapping(value = "/users/{id}") //получение по id http://localhost:8080/users/1
+    public User getUserById(@PathVariable int id) {
+        return inMemoryUserStorage.getUserById(id);
+    }
+
     @PutMapping(value = "/users/{id}/friends/{friendId}") //добавление в друзья
     public void addFriend(@PathVariable int id, @PathVariable int friendId) {
         userService.addFriend(id, friendId);
