@@ -35,7 +35,7 @@ public class InMemoryUserStorage implements UserStorage {
             System.out.println("Пользователь успешно обновлен!");
             return user;
         } else {
-            throw new ValidationException("There is no such user!");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "There is no such user!");
         }
 
     }
