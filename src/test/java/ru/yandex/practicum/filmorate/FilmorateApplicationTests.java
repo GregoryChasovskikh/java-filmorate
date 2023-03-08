@@ -72,7 +72,7 @@ class FilmorateApplicationTests {
 			InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
 			InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
 			UserService userService = new UserService(inMemoryUserStorage);
-			FilmService filmService = new FilmService(inMemoryFilmStorage, inMemoryUserStorage, userService);
+			FilmService filmService = new FilmService(inMemoryFilmStorage, userService);
 			Film testFilm = new Film("Knights", "The cyborg Gabriel (Kris Kristofferson) was created to destroy all other cyborgs. He later rescues Nea (Kathy Long) by killing the cyborg Simon (Scott Paulin). Gabriel trains Nea to become a cyborg killer and help him.", LocalDate.parse("1993-11-17"), 90);
 			filmService.addFilm(testFilm);
 		} catch (final HttpMessageNotReadableException e) {
@@ -85,7 +85,7 @@ class FilmorateApplicationTests {
 		InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
 		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
 		UserService userService = new UserService(inMemoryUserStorage);
-		FilmService filmService = new FilmService(inMemoryFilmStorage, inMemoryUserStorage, userService);
+		FilmService filmService = new FilmService(inMemoryFilmStorage, userService);
 		Film testFilm = new Film("Knights", "Knights is a 1993 American martial arts science fiction action film directed by Albert Pyun", LocalDate.parse("1893-11-17"), 90);
 		ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> filmService.addFilm(testFilm));
 		Assertions.assertEquals("Invalid data: maximum description length is 200 characters; release date - no earlier than December 28, 1895; movie duration must be positive", ex.getMessage());
@@ -96,7 +96,7 @@ class FilmorateApplicationTests {
 		InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
 		InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
 		UserService userService = new UserService(inMemoryUserStorage);
-		FilmService filmService = new FilmService(inMemoryFilmStorage, inMemoryUserStorage, userService);
+		FilmService filmService = new FilmService(inMemoryFilmStorage, userService);
 		Film testFilm = new Film("Knights", "Knights is a 1993 American martial arts science fiction action film directed by Albert Pyun", LocalDate.parse("1993-11-17"), -1);
 		ValidationException ex = Assertions.assertThrows(ValidationException.class, () -> filmService.addFilm(testFilm));
 		Assertions.assertEquals("Invalid data: maximum description length is 200 characters; release date - no earlier than December 28, 1895; movie duration must be positive", ex.getMessage());
@@ -110,7 +110,7 @@ class FilmorateApplicationTests {
 			InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
 			InMemoryUserStorage inMemoryUserStorage = new InMemoryUserStorage();
 			UserService userService = new UserService(inMemoryUserStorage);
-			FilmService filmService = new FilmService(inMemoryFilmStorage, inMemoryUserStorage, userService);
+			FilmService filmService = new FilmService(inMemoryFilmStorage, userService);
 			Film testFilm = new Film(null, "Knights is a 1993 American martial arts science fiction action film directed by Albert Pyun", LocalDate.parse("1993-11-17"), 90);
 			filmService.addFilm(testFilm);
 		} catch (final NullPointerException e) {

@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -20,38 +19,23 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
     public InMemoryFilmStorage inMemoryFilmStorage;
-    public InMemoryUserStorage inMemoryUserStorage;
     public UserService userService;
-    private int filmId;
 
     @Autowired
-    public FilmService(InMemoryFilmStorage inMemoryFilmStorage, InMemoryUserStorage inMemoryUserStorage, UserService userService) {
+    public FilmService(InMemoryFilmStorage inMemoryFilmStorage, UserService userService) {
         this.inMemoryFilmStorage = inMemoryFilmStorage;
-        this.inMemoryUserStorage = inMemoryUserStorage;
         this.userService = userService;
     }
 
 
     public Film addFilm(Film film) { //Создать новый фильм
-        if (!inMemoryFilmStorage.getFilms().containsKey(film.getId())) {
-            validateFilm(film);
-            ++filmId;
-            film.setId(filmId);
-            inMemoryFilmStorage.getFilms().put(filmId, film);
-        } else {
-            throw new ValidationException("Такой фильм уже есть в базе!");
-        }
-        return film;
+        validateFilm(film);
+        return inMemoryFilmStorage.addFilm(film);
     }
 
     public Film updateFilm(Film film) { //Обновить уже существующий фильм
-        if (inMemoryFilmStorage.getFilms().containsKey(film.getId())) {
-            validateFilm(film);
-            inMemoryFilmStorage.getFilms().put(film.getId(), film);
-            return film;
-        } else {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "There is no such film!");
-        }
+        validateFilm(film);
+        return inMemoryFilmStorage.updateFilm(film);
     }
 
     public List<Film> getFilmsList() { //Сгенерировать список из фильмов
@@ -60,10 +44,7 @@ public class FilmService {
     }
 
     public Film getFilmById(int id) { //Получить фильм по его id
-        for (Film currentFilm : inMemoryFilmStorage.getFilms().values()) {
-            if (id == currentFilm.getId()) return currentFilm;
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such movie!");
+        return inMemoryFilmStorage.getFilmById(id);
     }
 
 

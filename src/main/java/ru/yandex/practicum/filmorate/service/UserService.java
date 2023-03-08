@@ -23,28 +23,13 @@ public class UserService {
     private int userId;
 
     public User addUser(User user) { //Добавление нового пользователя
-        if (!inMemoryUserStorage.getUsers().containsKey(user.getId())) {
-            validateUser(user);
-            ++userId;
-            user.setId(userId);
-            inMemoryUserStorage.getUsers().put(userId, user);
-            System.out.println("Пользователь добавлен");
-        } else {
-            throw new ValidationException("This user is already in the database!");
-        }
-        return user;
+        validateUser(user);
+        return inMemoryUserStorage.addUser(user);
     }
 
     public User updateUser(User user) { //Изменение данных о пользователе
-        if (inMemoryUserStorage.getUsers().containsKey(user.getId())) {
-            validateUser(user);
-            inMemoryUserStorage.getUsers().put(user.getId(), user);
-            System.out.println("Пользователь успешно обновлен!");
-            return user;
-        } else {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "There is no such user!");
-        }
-
+        validateUser(user);
+        return inMemoryUserStorage.updateUser(user);
     }
 
 
@@ -54,10 +39,7 @@ public class UserService {
     }
 
     public User getUserById(int id) { //Получение пользователя по id
-        for (User currentUser : inMemoryUserStorage.getUsers().values()) {
-            if (id == currentUser.getId()) return currentUser;
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such user!");
+        return inMemoryUserStorage.getUserById(id);
     }
 
     //Добавление в друзья
