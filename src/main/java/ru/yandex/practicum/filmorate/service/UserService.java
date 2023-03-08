@@ -3,14 +3,12 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.ErrorResponse;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -22,34 +20,74 @@ public class UserService {
         this.inMemoryUserStorage = inMemoryUserStorage;
     }
 
+    private int userId;
+
+    public User addUser(User user) { //Добавление нового пользователя
+        if (!inMemoryUserStorage.getUsers().containsKey(user.getId())) {
+            validateUser(user);
+            ++userId;
+            user.setId(userId);
+            inMemoryUserStorage.getUsers().put(userId, user);
+            System.out.println("Пользователь добавлен");
+        } else {
+            throw new ValidationException("This user is already in the database!");
+        }
+        return user;
+    }
+
+    public User updateUser(User user) { //Изменение данных о пользователе
+        if (inMemoryUserStorage.getUsers().containsKey(user.getId())) {
+            validateUser(user);
+            inMemoryUserStorage.getUsers().put(user.getId(), user);
+            System.out.println("Пользователь успешно обновлен!");
+            return user;
+        } else {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "There is no such user!");
+        }
+
+    }
+
+
+    public List<User> getUsersList() { //писок всех пользователей
+        List<User> list = new ArrayList<User>(inMemoryUserStorage.getUsers().values());
+        return list;
+    }
+
+    public User getUserById(int id) { //Получение пользователя по id
+        for (User currentUser : inMemoryUserStorage.getUsers().values()) {
+            if (id == currentUser.getId()) return currentUser;
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such user!");
+    }
+
     //Добавление в друзья
     public void addFriend(int idUserOne, int idUserTwo) {
         checkIfFriendExists(idUserOne);
         checkIfFriendExists(idUserTwo);
-        inMemoryUserStorage.getUserById(idUserOne).getFriends().add(idUserTwo);
-        inMemoryUserStorage.getUserById(idUserTwo).getFriends().add(idUserOne);
+        getUserById(idUserOne).getFriends().add(idUserTwo);
+        getUserById(idUserTwo).getFriends().add(idUserOne);
     }
 
     //Удаление из друзей
     public void deleteFriend(int idUserOne, int idUserTwo) {
         checkIfFriendExists(idUserOne);
         checkIfFriendExists(idUserTwo);
-        inMemoryUserStorage.getUserById(idUserOne).getFriends().remove(idUserTwo);
-        inMemoryUserStorage.getUserById(idUserTwo).getFriends().remove(idUserOne);
+        getUserById(idUserOne).getFriends().remove(idUserTwo);
+        getUserById(idUserTwo).getFriends().remove(idUserOne);
     }
     //список пользователей, являющихся его друзьями
     public List<User> getListOfFriends(int idUserOne) {
-        return setToList(inMemoryUserStorage.getUserById(idUserOne).getFriends());
+        return setToList(getUserById(idUserOne).getFriends());
     }
 
     //список друзей, общих с другим пользователем
     public List<User> getListOfMutualFriends(int idUserOne, int idUserTwo) {
-        Set<Integer> userOneFriends = new HashSet<>(inMemoryUserStorage.getUserById(idUserOne).getFriends());
-        Set<Integer> userTwoFriends = new HashSet<>(inMemoryUserStorage.getUserById(idUserTwo).getFriends());
-        userOneFriends.removeAll(inMemoryUserStorage.getUserById(idUserTwo).getFriends());
-        userTwoFriends.removeAll(inMemoryUserStorage.getUserById(idUserOne).getFriends());
+        Set<Integer> userOneFriends = new HashSet<>(getUserById(idUserOne).getFriends());
+        Set<Integer> userTwoFriends = new HashSet<>(getUserById(idUserTwo).getFriends());
+        userOneFriends.removeAll(getUserById(idUserTwo).getFriends());
+        userTwoFriends.removeAll(getUserById(idUserOne).getFriends());
         Set<Integer> nonMutualFriends = mergeSet(userOneFriends, userTwoFriends);
-        Set<Integer> mutualFriends = mergeSet(inMemoryUserStorage.getUserById(idUserOne).getFriends(), inMemoryUserStorage.getUserById(idUserTwo).getFriends());
+        Set<Integer> mutualFriends = mergeSet(getUserById(idUserOne).getFriends(), getUserById(idUserTwo).getFriends());
         mutualFriends.removeAll(nonMutualFriends);
         return setToList(mutualFriends);
     }
@@ -57,16 +95,24 @@ public class UserService {
     private List<User> setToList(Set<Integer> friendsFromSet) {
         List<User> friends = new ArrayList<>();
         for (Integer friend : friendsFromSet) {
-            friends.add(inMemoryUserStorage.getUserById(friend));
+            friends.add(getUserById(friend));
         }
         return friends;
     }
 
     private void checkIfFriendExists(int id) {
-        for (User currentUser : inMemoryUserStorage.getUsersList()) {
+        for (User currentUser : getUsersList()) {
             if (id == currentUser.getId()) return;
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such user!");
+    }
+
+    private void validateUser (User user) {
+        if (!user.getEmail().contains("@") || user.getLogin().contains(" ") || user.getBirthday().isAfter(LocalDate.now())) {
+            throw new ValidationException("Invalid data: email must contain the @ symbol, login cannot contain spaces, date of birth cannot be in the future");
+        } else if (user.getName() == null || user.getName().equals("")) {
+            user.setName(user.getLogin());
+        }
     }
 
     private <T> Set<T> mergeSet(Set<T> a, Set<T> b)

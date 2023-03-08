@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -13,33 +12,30 @@ import java.util.List;
 @RestController
 @Slf4j
 public class UserController {
-    private final InMemoryUserStorage inMemoryUserStorage;
     private final UserService userService;
     @Autowired
-    public UserController(InMemoryUserStorage inMemoryUserStorage, UserService userService) {
-        this.inMemoryUserStorage = inMemoryUserStorage;
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping(value = "/users") //Создание пользователя
     public User addUser(@Valid @RequestBody User user) {
-        return inMemoryUserStorage.addUser(user);
+        return userService.addUser(user);
     }
 
     @PutMapping(value = "/users") //Обновление пользователя
     public User updateUser(@Valid @RequestBody User user) {
-        return inMemoryUserStorage.updateUser(user);
-
+        return userService.updateUser(user);
     }
 
     @GetMapping("/users") //Получение списка пользователей
     public List<User> getUsersList() {
-        return inMemoryUserStorage.getUsersList();
+        return userService.getUsersList();
     }
 
-    @GetMapping(value = "/users/{id}") //получение по id http://localhost:8080/users/1
+    @GetMapping(value = "/users/{id}") //получение по id
     public User getUserById(@PathVariable int id) {
-        return inMemoryUserStorage.getUserById(id);
+        return userService.getUserById(id);
     }
 
     @PutMapping(value = "/users/{id}/friends/{friendId}") //добавление в друзья
