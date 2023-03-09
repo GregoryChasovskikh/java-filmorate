@@ -37,18 +37,15 @@ public class InMemoryFilmStorage implements FilmStorage { //add, remove, getById
     }
 
     public Film getFilmById(int id) {
-        for (Film currentFilm : films.values()) {
-            if (id == currentFilm.getId()) return currentFilm;
+        if (films.containsKey(id)) {
+            return films.get(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such movie!");
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such movie!");
     }
 
     public void deleteFilm(int id) {
-        if (films.containsKey(id)) {
             films.remove(id);
-        } else {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "There is no such film!");
-        }
     }
 
 }

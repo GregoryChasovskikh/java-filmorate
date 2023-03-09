@@ -35,17 +35,14 @@ public class InMemoryUserStorage implements UserStorage { //add, remove, getById
     }
 
     public User getUserById(int id) { //Получение пользователя по id
-        for (User currentUser : users.values()) {
-            if (id == currentUser.getId()) return currentUser;
+        if (users.containsKey(id)) {
+            return users.get(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such user!");
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such user!");
     }
 
     public void deleteUser(int id) {
-        if (users.containsKey(id)) {
             users.remove(id);
-        } else {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "There is no such user!");
-        }
     }
 }
