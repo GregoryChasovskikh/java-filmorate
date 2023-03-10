@@ -44,7 +44,11 @@ public class FilmService {
     }
 
     public Film getFilmById(int id) { //Получить фильм по его id
-        return inMemoryFilmStorage.getFilmById(id);
+        if (inMemoryFilmStorage.getFilmById(id) != null) {
+            return inMemoryFilmStorage.getFilmById(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such movie!");
+        }
     }
 
 

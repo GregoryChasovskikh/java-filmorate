@@ -37,11 +37,7 @@ public class InMemoryFilmStorage implements FilmStorage { //add, remove, getById
     }
 
     public Film getFilmById(int id) {
-        if (films.containsKey(id)) {
             return films.get(id);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such movie!");
-        }
     }
 
     public void deleteFilm(int id) {

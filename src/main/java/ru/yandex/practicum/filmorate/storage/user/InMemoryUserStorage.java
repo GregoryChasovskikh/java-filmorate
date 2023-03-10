@@ -35,11 +35,7 @@ public class InMemoryUserStorage implements UserStorage { //add, remove, getById
     }
 
     public User getUserById(int id) { //Получение пользователя по id
-        if (users.containsKey(id)) {
             return users.get(id);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such user!");
-        }
     }
 
     public void deleteUser(int id) {

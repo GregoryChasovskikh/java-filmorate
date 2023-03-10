@@ -39,7 +39,11 @@ public class UserService {
     }
 
     public User getUserById(int id) { //Получение пользователя по id
-        return inMemoryUserStorage.getUserById(id);
+        if (inMemoryUserStorage.getUserById(id) != null) {
+            return inMemoryUserStorage.getUserById(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no such user!");
+        }
     }
 
     //Добавление в друзья
